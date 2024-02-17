@@ -1,61 +1,59 @@
-using System;
-using System.Collections.Generic;
-using System.IO;
-public class Journal{
 
-public List<Entry> list_of_entries = new List<Entry>();
-
-public void Save(string filePath)
+public class Journal
 {
-    using (StreamWriter sw = File.AppendText(filePath))
+    public List<Entry> Entries = new List<Entry>();
+
+    public void AddEntry(Entry entry)
     {
-        foreach (Entry entry in list_of_entries)
-        {
-            sw.WriteLine($"{entry._date},{entry._name},{entry._prompt},{entry._response}");
-        }
-    }
-    Console.WriteLine("Journal entries have been saved to the file.");
-}
-
-
-   
-public void Load(string filePath)
-{   
-
-    list_of_entries.Clear();
-
-    if (File.Exists(filePath))
-    {
-        string[] lines = File.ReadAllLines(filePath);
-        foreach (string line in lines)
-        {
-            string[] parts = line.Split(',');
-            Entry entry = new Entry();
-            entry._date = parts[0];
-            entry._name = parts[1];
-            entry._prompt = parts[2];
-            entry._response = parts[3];
-            list_of_entries.Add(entry);
-        }
-        
+        Entries.Add(entry);
     }
 
-    else
+    public List<Entry> GetEntriesForDate(string date)
     {
-        Console.WriteLine("The specified file does not exist.");
+        return Entries.Where(entry => entry._Date == date).ToList();
     }
-}
 
-public void Display(){
-
-     foreach (Entry entry in list_of_entries)
+    public void Save(string filePath)
+    {
+        using (StreamWriter sw = File.AppendText(filePath))
         {
-            Console.WriteLine($"Date: {entry._date}, Name: {entry._name}, Prompt: {entry._prompt}, Response: {entry._response}");
+            foreach (Entry entry in Entries)
+            {
+                sw.WriteLine($"{entry._Date},{entry._Name},{entry._Response}");
+            }
         }
+    }
 
+    public void Load(string filePath)
+    {
+        Entries.Clear();
 
-}
+        if (File.Exists(filePath))
+        {
+            string[] lines = File.ReadAllLines(filePath);
+            foreach (string line in lines)
+            {
+                string[] parts = line.Split(',');
+                Entry entry = new Entry
+                {
+                    _Date = parts[0],
+                    _Name = parts[1],
+                    _Response = parts[2]
+                };
+                Entries.Add(entry);
+            }
+        }
+        else
+        {
+            Console.WriteLine("The specified file does not exist.");
+        }
+    }
 
-
-
+    public void Display()
+    {
+        foreach (Entry entry in Entries)
+        {
+            Console.WriteLine($"Date: {entry._Date}, Name: {entry._Name}, Response: {entry._Response}");
+        }
+    }
 }

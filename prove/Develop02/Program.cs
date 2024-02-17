@@ -1,74 +1,74 @@
-using System;
-using System.Net;
+
 
 class Program
 {
     static void Main(string[] args)
     {
-        Console. WriteLine("Please select a number to continue");
-        Console. WriteLine("1.start writing \n2.load history \n3.diplay the journal");
+        Console.WriteLine("Please select an action:");
+        Console.WriteLine("1. Start writing\n2. Load history\n3. Display the journal");
 
         int choice = int.Parse(Console.ReadLine());
 
-        Prompt RandomPrompt = new Prompt();
+        Journal journal = new Journal();
+        string filePath = "myjournal.csv";
 
-        Journal journal = new Journal(); 
-        string filePath = @"C:\Users\10759\Desktop\Programming with classes\CSE210-WINTER2024\210-winter2024\prove\Develop02\myjournal.csv"; 
-        
-        if (choice == 1)
+        switch (choice)
         {
+            case 1:
+                Console.WriteLine("What's your name?");
+                string name = Console.ReadLine();
 
-            Console.WriteLine("what's your name?");
-            string name = Console.ReadLine();
-
-            RandomPrompt.DisplayRandomPrompt();
-            string response = Console.ReadLine();
-            Entry entry = new Entry();
-            entry._date = DateTime.Now.ToShortDateString();
-            entry._name = name;
-            entry._prompt = ""; 
-            entry._response = response;
-            journal.list_of_entries.Add(entry);
-            journal.Save(filePath);
-
-        }
-
-        else if(choice == 2)
-        {
-
-            Console.WriteLine("What day do you want to see?");
-            string select_date = Console.ReadLine();
-            journal.Load(filePath);
-    
-    
-            var entriesForDate = journal.list_of_entries.Where(entry => entry._date == select_date).ToList();
-    
-    
-            if (entriesForDate.Count > 0)
-            {
-                foreach (var entry in entriesForDate)
+                do
                 {
-                    Console.WriteLine($"Date: {entry._date}, Name: {entry._name}, Prompt: {entry._prompt}, Response: {entry._response}");
+                    Prompt.DisplayRandomPrompt();
+                    Console.WriteLine("Write your response (or type 'exit' to stop):");
+                    string response = Console.ReadLine();
+
+                    if (response.ToLower() == "exit")
+                        break;
+
+                    Entry entry = new Entry
+                    {
+                        _Date = DateTime.Now.ToShortDateString(),
+                        _Name = name,
+                        _Response = response
+                    };
+
+                    journal.AddEntry(entry);
+                } while (true);
+
+                journal.Save(filePath);
+                Console.WriteLine("Entries have been saved to the file.");
+                break;
+
+            case 2:
+                Console.WriteLine("Enter the date you want to see (date format: yyyy/MM/dd):");
+                string selectDate = Console.ReadLine();
+                journal.Load(filePath);
+
+                var entriesForDate = journal.GetEntriesForDate(selectDate);
+
+                if (entriesForDate.Any())
+                {
+                    foreach (var entry in entriesForDate)
+                    {
+                        Console.WriteLine($"Date: {entry._Date}, Name: {entry._Name}, Response: {entry._Response}");
+                    }
                 }
-            }
-            else
-            {
-                Console.WriteLine($"No entries found for date: {select_date}");
-            }
+                else
+                {
+                    Console.WriteLine($"No entries found for date: {selectDate}");
+                }
+                break;
 
+            case 3:
+                journal.Load(filePath);
+                journal.Display();
+                break;
+
+            default:
+                Console.WriteLine("Invalid choice");
+                break;
         }
-
-
-        else
-        {
-            journal.Load(filePath);
-            journal.Display();
-
-        }
-
-
-
     }
-
-    
 }
